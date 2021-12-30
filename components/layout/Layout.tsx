@@ -37,7 +37,7 @@ const BodyContainer = styled.div`
   width: 100%;
   min-width: 72rem;
   height: calc(100% - 7.8rem);
-  min-height: 35rem;
+  min-height: 42rem;
   padding: 2rem 2.4rem;
   margin: 0 auto;
   @media (max-width: 1440px) {
