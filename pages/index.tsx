@@ -1,9 +1,17 @@
 import classNames from "classnames";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import Icon from "../components/Icon";
 import Layout from "../components/layout/Layout";
 import { CenterFlex, FlatBtn } from "../styles/global";
+import { throttle } from "lodash";
 
 const Faucet = () => {
   return (
@@ -143,11 +151,25 @@ const options = [
   { name: "Binance", id: 4 },
 ];
 
+const MockClaim = () => {
+  return new Promise<void>((resolve, reject) => {
+    setTimeout(() => {
+      let val = Date.now() % 2 === 0;
+      if (val) {
+        resolve();
+      } else {
+        reject({ message: "fail" });
+      }
+    }, 1 * 1000);
+  });
+};
+
 const FormCard = () => {
   const [address, setAddress] = useState("");
   const [selected, setSelected] = useState<{ name: string; id: number }>(
     options[0]
   );
+  const [claimed, setClaimed] = useState(0); // 0 for not yet, 1 for claiming, 2 for claimed, 3 for failed
   const dom = useRef<HTMLDivElement>(null);
 
   const onConnect = () => {
@@ -170,6 +192,47 @@ const FormCard = () => {
       );
     }
   };
+  const onClaim = useRef(
+    throttle(
+      () => {
+        setClaimed(1);
+        MockClaim()
+          .then(() => {
+            if (dom.current) {
+              setClaimed(2);
+            }
+          })
+          .catch(() => {
+            if (dom.current) {
+              setClaimed(3);
+            }
+          })
+          .finally(() => {
+            setTimeout(() => {
+              if (dom.current) {
+                setClaimed(0);
+              }
+            }, 3.5 * 1000);
+          });
+      },
+      1000,
+      { trailing: false }
+    )
+  ).current;
+  const BtnLabel = useMemo(() => {
+    switch (claimed) {
+      case 0:
+        return "Claim";
+      case 1:
+        return "Claiming";
+      case 2:
+        return "Claimed";
+      case 3:
+        return "Failed";
+      default:
+        return "Claim";
+    }
+  }, [claimed]);
 
   return (
     <CardWrap>
@@ -184,8 +247,12 @@ const FormCard = () => {
             <span className="text">Select a chain to claim test tokens.</span>
             <CenterFlex>
               <Selector selected={selected} setSelected={setSelected} />
-              <button className="claim" onClick={() => {}}>
-                Claim
+              <button
+                className="claim"
+                onClick={onClaim}
+                disabled={claimed !== 0}
+              >
+                {BtnLabel}
               </button>
             </CenterFlex>
           </div>
