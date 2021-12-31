@@ -162,7 +162,7 @@ const Header = () => (
         />
       </CenterFlex>
       <ImgBox
-        src="/Zecrey_Wallet_bar.svg"
+        src="/Zecrey_Wallet_bar.png"
         alt="Zecrey Wallet"
         width={154}
         height={33}
