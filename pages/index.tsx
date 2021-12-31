@@ -144,11 +144,11 @@ const CardWrap = styled.div`
 `;
 
 const options = [
-  { name: "Ethereum", id: 0 },
-  { name: "Polygon", id: 1 },
-  { name: "NEAR Aurora", id: 2 },
-  { name: "Avalanche", id: 3 },
-  { name: "Binance", id: 4 },
+  { name: "Ethereum Rinkiby", id: 0 },
+  { name: "Polygon Testnet", id: 1 },
+  { name: "Aurora Testnet", id: 2 },
+  { name: "Avalanche FUJI C-Chain", id: 3 },
+  { name: "Binance Smart Chain - Testnet", id: 4 },
 ];
 
 const MockClaim = () => {
@@ -272,6 +272,7 @@ const FormCard = () => {
 
 const SelectWrap = styled.div`
   position: relative;
+
   height: 4rem;
   button.trigger {
     width: 100%;
@@ -302,6 +303,7 @@ const SelectWrap = styled.div`
   }
   .options {
     position: absolute;
+    min-width: 26rem;
     left: 0;
     top: 5rem;
     background: rgba(40, 40, 40, 0.8);
