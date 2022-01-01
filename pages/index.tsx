@@ -16,10 +16,6 @@ import Head from "next/head";
 import { ethers } from "ethers";
 import ABI from "../abi/claimABI.json";
 
-const ErrMessage = styled.div`
-  color: red;
-`;
-
 const Faucet = () => {
   return (
     <>
@@ -53,7 +49,7 @@ const CardWrap = styled.div`
     height: 5rem;
     border-radius: 1rem 1rem 0 0;
     // background-color: rgba(56, 56, 56, 0.5);
-    background-image: url(/title-bg.png);
+    background-image: url(/card-title-bg.png);
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
