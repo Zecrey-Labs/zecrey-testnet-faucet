@@ -75,6 +75,47 @@ const Icon = (props: { name: string; id?: string; className?: string }) => {
           />
         </svg>
       );
+    case "warning":
+      return (
+        <svg
+          id={props.id}
+          className={props.className}
+          viewBox="0 0 22 22"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlnsXlink="http://www.w3.org/1999/xlink"
+        >
+          <title>形状</title>
+          <defs>
+            <path
+              d="M451,525 C444.924868,525 440,529.924868 440,536 C440,542.075132 444.924868,547 451,547 C457.075132,547 462,542.075132 462,536 C462,533.082619 460.841075,530.284726 458.778175,528.221825 C456.715274,526.158925 453.917381,525 451,525 Z M451,542.1875 C450.240608,542.1875 449.625,541.571892 449.625,540.8125 C449.625,540.053108 450.240608,539.4375 451,539.4375 C451.759392,539.4375 452.375,540.053108 452.375,540.8125 C452.375,541.571892 451.759392,542.1875 451,542.1875 L451,542.1875 Z M452.375,537.375 L449.625,537.375 L449.625,529.8125 L452.375,529.8125 L452.375,537.375 Z"
+              id="path-1"
+            ></path>
+          </defs>
+          <g
+            id="页面-1"
+            stroke="none"
+            stroke-width="1"
+            fill="none"
+            fill-rule="evenodd"
+          >
+            <g
+              id="Dark_Liquidity备份-2"
+              transform="translate(-440.000000, -525.000000)"
+            >
+              <mask id="mask-2" fill="white">
+                <use xlinkHref="#path-1"></use>
+              </mask>
+              <use
+                id="形状"
+                fill="#F7821B"
+                fill-rule="nonzero"
+                xlinkHref="#path-1"
+              ></use>
+            </g>
+          </g>
+        </svg>
+      );
     default:
       return null;
   }

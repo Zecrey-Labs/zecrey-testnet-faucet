@@ -150,6 +150,26 @@ const CardWrap = styled.div`
     }
   }
 `;
+const Warning = styled(CenterFlex)`
+  padding: 1.7rem 1rem;
+  align-items: flex-start;
+  background: rgba(56, 56, 56, 0.5);
+  border: 0.1rem solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2.7rem);
+  border-radius: 1rem;
+  margin-top: 1rem;
+  svg {
+    width: 2.2rem;
+    height: 2.2rem;
+    margin-right: 1rem;
+  }
+  span {
+    font-family: IBM Plex Sans;
+    font-size: 1.6rem;
+    line-height: 2.2rem;
+    color: #ffffff;
+  }
+`;
 
 const options = [
   { name: "Ethereum Rinkeby", id: 0 },
@@ -470,6 +490,15 @@ const FormCard = () => {
             </FlatBtn>
           </div>
         )}
+        {address ? (
+          <Warning>
+            <Icon name="warning" />
+            <span>
+              If you have already received the test tokens, it will fail when
+              your claim it again.
+            </span>
+          </Warning>
+        ) : null}
       </div>
     </CardWrap>
   );
