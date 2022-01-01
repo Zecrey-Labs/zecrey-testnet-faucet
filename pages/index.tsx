@@ -18,7 +18,7 @@ import ABI from "../abi/claimABI.json";
 
 const ErrMessage = styled.div`
   color: red;
-`
+`;
 
 const Faucet = () => {
   return (
@@ -155,6 +155,8 @@ const CardWrap = styled.div`
   }
 `;
 const Warning = styled(CenterFlex)`
+  position: absolute;
+  width: 64rem;
   padding: 1.7rem 1rem;
   align-items: flex-start;
   background: rgba(56, 56, 56, 0.5);
@@ -162,6 +164,7 @@ const Warning = styled(CenterFlex)`
   backdrop-filter: blur(2.7rem);
   border-radius: 1rem;
   margin-top: 1rem;
+  z-index: -1;
   svg {
     width: 2.2rem;
     height: 2.2rem;
@@ -349,7 +352,7 @@ const FormCard = () => {
     options[0]
   );
   const [claimed, setClaimed] = useState(0); // 0 for not yet, 1 for claiming, 2 for claimed, 3 for failed
-  const [errMessage, setErrMessage] = useState('');
+  const [errMessage, setErrMessage] = useState("");
   const dom = useRef<HTMLDivElement>(null);
 
   const onConnect = () => {
@@ -375,13 +378,21 @@ const FormCard = () => {
     // }
     let eth = (window as any).ethereum;
     if (eth) {
-      eth.request({ method: "wallet_requestPermissions",params: [{ eth_accounts: {} }] }).then(() => {
-        return eth.request({ method: "eth_requestAccounts" })
-      }).then((res) => {
-        if (dom.current && res[0]) {
-          setAddress(res[0].substring(0, 5) + "..." + res[0].substring(38, 42));
-        }
-      });
+      eth
+        .request({
+          method: "wallet_requestPermissions",
+          params: [{ eth_accounts: {} }],
+        })
+        .then(() => {
+          return eth.request({ method: "eth_requestAccounts" });
+        })
+        .then((res) => {
+          if (dom.current && res[0]) {
+            setAddress(
+              res[0].substring(0, 5) + "..." + res[0].substring(38, 42)
+            );
+          }
+        });
     }
   };
   const onClaim = useRef(
@@ -395,10 +406,10 @@ const FormCard = () => {
             }
           })
           .catch((err) => {
-            setErrMessage(err?.error?.message ?? '')
+            setErrMessage(err?.error?.message ?? "");
             setTimeout(() => {
-              dom.current && setErrMessage('')
-            }, 5000)
+              dom.current && setErrMessage("");
+            }, 5000);
             if (dom.current) {
               setClaimed(3);
             }
@@ -505,11 +516,9 @@ const FormCard = () => {
           <Warning>
             <Icon name="warning" />
             <span>
-              {
-                errMessage ||
+              {errMessage ||
                 `If you have already received the test tokens, it will fail when
-                your claim it again.`
-              }
+                your claim it again.`}
             </span>
           </Warning>
         ) : null}
