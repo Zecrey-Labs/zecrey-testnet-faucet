@@ -398,7 +398,7 @@ const FormCard = () => {
             setErrMessage(err?.error?.message ?? '')
             setTimeout(() => {
               dom.current && setErrMessage('')
-            }, 1500)
+            }, 5000)
             if (dom.current) {
               setClaimed(3);
             }
