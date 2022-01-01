@@ -192,14 +192,14 @@ const claim = (chain_id: number) => {
     if (Number(CHAIN_CONFIGS[chain_id].chainId) !== Number(current_chain_id)) {
       try {
         await eth.request({
-          method: "wallet_addEthereumChain",
-          params: [CHAIN_CONFIGS[chain_id]],
-        });
-        eth.request({
           method: "wallet_switchEthereumChain",
           params: [{ chainId: CHAIN_CONFIGS[chain_id].chainId }],
         });
       } catch (err) {
+        await eth.request({
+          method: "wallet_addEthereumChain",
+          params: [CHAIN_CONFIGS[chain_id]],
+        });
         console.log("Error: failed to switch network.");
         return reject(err);
       }
