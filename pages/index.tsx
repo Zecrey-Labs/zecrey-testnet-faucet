@@ -396,6 +396,9 @@ const FormCard = () => {
           })
           .catch((err) => {
             setErrMessage(err?.error?.message ?? '')
+            setTimeout(() => {
+              dom.current && setErrMessage('')
+            }, 1500)
             if (dom.current) {
               setClaimed(3);
             }
@@ -488,7 +491,6 @@ const FormCard = () => {
                 {BtnLabel}
               </button>
             </CenterFlex>
-            <ErrMessage>{errMessage}</ErrMessage>
           </div>
         ) : (
           <div className="body un-connected">
@@ -503,8 +505,11 @@ const FormCard = () => {
           <Warning>
             <Icon name="warning" />
             <span>
-              If you have already received the test tokens, it will fail when
-              your claim it again.
+              {
+                errMessage ||
+                `If you have already received the test tokens, it will fail when
+                your claim it again.`
+              }
             </span>
           </Warning>
         ) : null}
