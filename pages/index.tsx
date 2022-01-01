@@ -375,7 +375,10 @@ const FormCard = () => {
     // }
     let eth = (window as any).ethereum;
     if (eth) {
-      eth.request({ method: "eth_requestAccounts" }).then((res) => {
+      eth.request({ method: "wallet_requestPermissions",params: [{ eth_accounts: {} }] }).then(() => {
+        return eth.request({ method: "eth_requestAccounts" })
+      }).then((res) => {
+        debugger;
         if (dom.current && res[0]) {
           setAddress(res[0].substring(0, 5) + "..." + res[0].substring(38, 42));
         }
