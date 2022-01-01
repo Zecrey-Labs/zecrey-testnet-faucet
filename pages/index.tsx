@@ -48,7 +48,7 @@ const CardWrap = styled.div`
     width: 100%;
     height: 5rem;
     border-radius: 1rem 1rem 0 0;
-    background-color: rgba(56, 56, 56, 0.5);
+    // background-color: rgba(56, 56, 56, 0.5);
     background-image: url(/title-bg.png);
     background-position: center;
     background-size: cover;
@@ -190,22 +190,27 @@ const claim = (chain_id: number) => {
     let eth = (window as any).ethereum;
     let current_chain_id = await eth.request({ method: "eth_chainId" });
     if (Number(CHAIN_CONFIGS[chain_id].chainId) !== Number(current_chain_id)) {
-      eth.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: CHAIN_CONFIGS[chain_id].chainId }],
-      }).then(() => {
-        resolve()
-      }).catch(() => {
+      eth
+        .request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: CHAIN_CONFIGS[chain_id].chainId }],
+        })
+        .then(() => {
+          resolve();
+        })
+        .catch(() => {
           return eth.request({
-              method: "wallet_addEthereumChain",
-              params: [CHAIN_CONFIGS[chain_id]],
-          })
-      }).then(() => {
-          resolve()
-      }).catch(err => {
-        console.log("Error: failed to switch network.");
-        return reject(err);
-      })
+            method: "wallet_addEthereumChain",
+            params: [CHAIN_CONFIGS[chain_id]],
+          });
+        })
+        .then(() => {
+          resolve();
+        })
+        .catch((err) => {
+          console.log("Error: failed to switch network.");
+          return reject(err);
+        });
     }
     let current_chain_id2 = await eth.request({ method: "eth_chainId" });
     if (Number(CHAIN_CONFIGS[chain_id].chainId) !== Number(current_chain_id2)) {
@@ -421,12 +426,14 @@ const FormCard = () => {
           params: [{ chainId: CHAIN_CONFIGS[chainId].chainId }],
         });
       } catch (err) {
-        await ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [CHAIN_CONFIGS[chainId]],
-        }).catch(() =>{
-          console.log("Error: failed to switch network.");
-        });
+        await ethereum
+          .request({
+            method: "wallet_addEthereumChain",
+            params: [CHAIN_CONFIGS[chainId]],
+          })
+          .catch(() => {
+            console.log("Error: failed to switch network.");
+          });
       }
     };
     switchChain(selected.id);
