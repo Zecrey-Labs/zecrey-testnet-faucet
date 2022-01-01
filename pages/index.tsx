@@ -16,6 +16,10 @@ import Head from "next/head";
 import { ethers } from "ethers";
 import ABI from "../abi/claimABI.json";
 
+const ErrMessage = styled.div`
+  color: red;
+`
+
 const Faucet = () => {
   return (
     <>
@@ -345,6 +349,7 @@ const FormCard = () => {
     options[0]
   );
   const [claimed, setClaimed] = useState(0); // 0 for not yet, 1 for claiming, 2 for claimed, 3 for failed
+  const [errMessage, setErrMessage] = useState('');
   const dom = useRef<HTMLDivElement>(null);
 
   const onConnect = () => {
@@ -387,7 +392,8 @@ const FormCard = () => {
               setClaimed(2);
             }
           })
-          .catch(() => {
+          .catch((err) => {
+            setErrMessage(err?.error?.message ?? '')
             if (dom.current) {
               setClaimed(3);
             }
@@ -480,6 +486,7 @@ const FormCard = () => {
                 {BtnLabel}
               </button>
             </CenterFlex>
+            <ErrMessage>{errMessage}</ErrMessage>
           </div>
         ) : (
           <div className="body un-connected">
