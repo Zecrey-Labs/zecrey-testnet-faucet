@@ -349,20 +349,6 @@ const FormCard = () => {
       { trailing: false }
     )
   ).current;
-  const BtnLabel = useMemo(() => {
-    switch (claimed) {
-      case 0:
-        return "Claim";
-      case 1:
-        return "Claiming";
-      case 2:
-        return "Claimed";
-      case 3:
-        return "Failed";
-      default:
-        return "Claim";
-    }
-  }, [claimed]);
 
   return (
     <CardWrap>
@@ -380,9 +366,8 @@ const FormCard = () => {
               <button
                 className="claim"
                 onClick={() => onClaim(selected.id)}
-                disabled={claimed !== 0}
               >
-                {BtnLabel}
+                Claim
               </button>
             </CenterFlex>
           </div>
