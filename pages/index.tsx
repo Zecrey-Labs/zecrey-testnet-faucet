@@ -12,12 +12,20 @@ import Icon from "../components/Icon";
 import Layout from "../components/layout/Layout";
 import { CenterFlex, FlatBtn } from "../styles/global";
 import { throttle } from "lodash";
+import Head from "next/head";
+import { ethers } from "ethers";
+import ABI from "../abi/claimABI.json";
 
 const Faucet = () => {
   return (
-    <Layout>
-      <FormCard />
-    </Layout>
+    <>
+      <Head>
+        <title>Zecrey Testnet Faucet</title>
+      </Head>
+      <Layout>
+        <FormCard />
+      </Layout>
+    </>
   );
 };
 
@@ -144,25 +152,164 @@ const CardWrap = styled.div`
 `;
 
 const options = [
-  { name: "Ethereum Rinkiby", id: 0 },
+  { name: "Ethereum Rinkeby", id: 0 },
   { name: "Polygon Testnet", id: 1 },
   { name: "Aurora Testnet", id: 2 },
   { name: "Avalanche FUJI C-Chain", id: 3 },
   { name: "Binance Smart Chain - Testnet", id: 4 },
 ];
 
-const MockClaim = () => {
-  return new Promise<void>((resolve, reject) => {
-    setTimeout(() => {
-      let val = Date.now() % 2 === 0;
-      if (val) {
-        resolve();
-      } else {
-        reject({ message: "fail" });
+// const MockClaim = () => {
+//   return new Promise<void>((resolve, reject) => {
+//     setTimeout(() => {
+//       let val = Date.now() % 2 === 0;
+//       if (val) {
+//         resolve();
+//       } else {
+//         reject({ message: "fail" });
+//       }
+//     }, 1 * 1000);
+//   });
+// };
+
+const claim = (chain_id: number) => {
+  return new Promise<void>(async (resolve, reject) => {
+    // let zecrey = (window as any).zecrey;
+    // if (!zecrey) return;
+    // zecrey
+    //   .request({
+    //     method: "zecrey_claim",
+    //     params: [chain_id],
+    //   })
+    //   .then((result) => {
+    //     console.log(result);
+    //   })
+    //   .catch((error) => {
+    //     console.error(error);
+    //   });
+    let eth = (window as any).ethereum;
+    let current_chain_id = await eth.request({ method: "eth_chainId" });
+    if (Number(CHAIN_CONFIGS[chain_id].chainId) !== Number(current_chain_id)) {
+      try {
+        await eth.request({
+          method: "wallet_addEthereumChain",
+          params: [CHAIN_CONFIGS[chain_id]],
+        });
+        eth.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: CHAIN_CONFIGS[chain_id].chainId }],
+        });
+      } catch (err) {
+        console.log("Error: failed to switch network.");
+        return reject(err);
       }
-    }, 1 * 1000);
+    }
+    let current_chain_id2 = await eth.request({ method: "eth_chainId" });
+    if (Number(CHAIN_CONFIGS[chain_id].chainId) !== Number(current_chain_id2)) {
+      // user refuse to switch chain anyway
+      return reject({ message: "wrong chain" });
+    } else {
+      const signer = new ethers.providers.Web3Provider(eth).getSigner();
+      const CLAIM_CONTRACT_ADDRESS = [
+        "0xf5Fe43147a969180841c0E4BB766eD67938fFd2a",
+        "0xbA0F5553cC7996a59F860F5a347976684e9Ae680",
+        "0x0daB3AD6eE0Ca0AE3a5C0628cE54286589525ce1",
+        "0x19c9e0490BeE1781a3C80648Cc2a061bcBc106e0",
+        "0xA0C6126A241eeFD3D783667a19fb944500d88573",
+      ];
+      const contract = new ethers.Contract(
+        CLAIM_CONTRACT_ADDRESS[chain_id],
+        ABI,
+        signer
+      );
+      contract
+        .claimBatch()
+        .then((tx) => {
+          // console.log("tx:", tx);
+          tx.wait()
+            .then((res) => {
+              // console.log("res: ", res);
+              resolve();
+            })
+            .catch((err) => reject(err));
+        })
+        .catch((err) => reject(err));
+    }
   });
 };
+
+const rinkeby_config = {
+  chainId: "0x4",
+  chainName: "Rinkeby testnet",
+  nativeCurrency: {
+    name: "ETH",
+    symbol: "ETH",
+    decimals: 18,
+  },
+  rpcUrls: ["https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"],
+  blockExplorerUrls: ["https://rinkeby.etherscan.io"],
+};
+const polygon_config = {
+  chainId: "0x13881",
+  chainName: "Polygon",
+  nativeCurrency: {
+    name: "MATIC",
+    symbol: "MATIC",
+    decimals: 18,
+  },
+  rpcUrls: ["https://matic-mumbai.chainstacklabs.com"],
+  blockExplorerUrls: ["https://mumbai.polygonscan.com"],
+};
+const near_aurora_config = {
+  chainId: "0x4e454153",
+  chainName: "Aurora Testnet",
+  nativeCurrency: {
+    name: "ETH",
+    symbol: "ETH",
+    decimals: 18,
+  },
+  rpcUrls: ["https://testnet.aurora.dev/"],
+  blockExplorerUrls: ["https://explorer.testnet.aurora.dev/"],
+};
+const avalanche_config = {
+  chainId: "0xa869",
+  chainName: "Avalanche FUJI C-Chain",
+  nativeCurrency: {
+    name: "AVAX",
+    symbol: "AVAX",
+    decimals: 18,
+  },
+  rpcUrls: ["https://api.avax-test.network/ext/bc/C/rpc"],
+  blockExplorerUrls: ["https://testnet.snowtrace.io/"],
+};
+const binance_config = {
+  chainId: "0x61",
+  chainName: "Binance Smart Chain - Testnet",
+  nativeCurrency: {
+    name: "BNB",
+    symbol: "BNB",
+    decimals: 18,
+  },
+  rpcUrls: ["https://data-seed-prebsc-1-s1.binance.org:8545/"],
+  blockExplorerUrls: ["https://testnet.bscscan.com"],
+};
+const CHAIN_CONFIGS: {
+  chainId: string;
+  chainName: string;
+  nativeCurrency: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+  rpcUrls: string[];
+  blockExplorerUrls: string[];
+}[] = [
+  rinkeby_config,
+  polygon_config,
+  near_aurora_config,
+  avalanche_config,
+  binance_config,
+];
 
 const FormCard = () => {
   const [address, setAddress] = useState("");
@@ -173,30 +320,40 @@ const FormCard = () => {
   const dom = useRef<HTMLDivElement>(null);
 
   const onConnect = () => {
-    let zecrey = (window as any).zecrey;
-    if (zecrey) {
-      zecrey
-        .request({
-          method: "eth_requestAccounts",
-        })
-        .then((result: string[]) => {
-          if (dom.current && result[0]) {
-            setAddress(
-              result[0].substring(0, 5) + "..." + result[0].substring(38, 42)
-            );
-          }
-        });
-    } else {
-      window.open(
-        "https://chrome.google.com/webstore/detail/zecrey/ojbpcbinjmochkhelkflddfnmcceomdi"
-      );
+    // let zecrey = (window as any).zecrey;
+    // console.log(zecrey);
+    // if (zecrey) {
+    //   zecrey
+    //     .request({
+    //       method: "eth_requestAccounts",
+    //     })
+    //     .then((result: string[]) => {
+    //       console.log(result);
+    //       if (dom.current && result[0]) {
+    //         setAddress(
+    //           result[0].substring(0, 5) + "..." + result[0].substring(38, 42)
+    //         );
+    //       }
+    //     });
+    // } else {
+    //   window.open(
+    //     "https://chrome.google.com/webstore/detail/zecrey/ojbpcbinjmochkhelkflddfnmcceomdi"
+    //   );
+    // }
+    let eth = (window as any).ethereum;
+    if (eth) {
+      eth.request({ method: "eth_requestAccounts" }).then((res) => {
+        if (dom.current && res[0]) {
+          setAddress(res[0].substring(0, 5) + "..." + res[0].substring(38, 42));
+        }
+      });
     }
   };
   const onClaim = useRef(
     throttle(
-      () => {
+      (chainId: number) => {
         setClaimed(1);
-        MockClaim()
+        claim(chainId)
           .then(() => {
             if (dom.current) {
               setClaimed(2);
@@ -233,6 +390,43 @@ const FormCard = () => {
         return "Claim";
     }
   }, [claimed]);
+  useEffect(() => {
+    const handle = (accounts: Array<string>) => {
+      if (dom.current && accounts[0]) {
+        setAddress(
+          accounts[0].substring(0, 5) + "..." + accounts[0].substring(38, 42)
+        );
+      }
+    };
+    let eth = (window as any).ethereum;
+    if (eth) {
+      eth.on("accountsChanged", handle);
+    }
+    return () => {
+      if (eth) eth.removeListener("accountsChanged", handle);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!address) return;
+    const switchChain = async (chainId: number) => {
+      let { ethereum } = window as any;
+      if (!ethereum) return;
+      try {
+        await ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [CHAIN_CONFIGS[chainId]],
+        });
+        ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: CHAIN_CONFIGS[chainId].chainId }],
+        });
+      } catch (err) {
+        console.log("Error: failed to switch network.");
+      }
+    };
+    switchChain(selected.id);
+  }, [selected, address]);
 
   return (
     <CardWrap>
@@ -249,7 +443,7 @@ const FormCard = () => {
               <Selector selected={selected} setSelected={setSelected} />
               <button
                 className="claim"
-                onClick={onClaim}
+                onClick={() => onClaim(selected.id)}
                 disabled={claimed !== 0}
               >
                 {BtnLabel}
@@ -303,7 +497,7 @@ const SelectWrap = styled.div`
   }
   .options {
     position: absolute;
-    min-width: 26rem;
+    min-width: 27rem;
     left: 0;
     top: 5rem;
     background: rgba(40, 40, 40, 0.8);

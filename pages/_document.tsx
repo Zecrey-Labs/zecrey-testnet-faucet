@@ -32,7 +32,6 @@ export default class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <title>Zecrey Testnet Faucet</title>
           <meta name="charset" content="utf-8" />
           <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
           <meta name="description" content="Zecrey Testnet Faucet" />
