@@ -513,7 +513,7 @@ const FormCard = () => {
             <Icon name="warning" />
             <span>
               {errMessage ||
-                `If you have already received the test tokens, it will fail if
+                `If you have already received the test tokens, it will fail when
                 your claim it again.`}
             </span>
           </Warning>
