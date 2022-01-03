@@ -1,20 +1,12 @@
 import classNames from "classnames";
-import {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Icon from "../components/Icon";
 import Layout from "../components/layout/Layout";
 import { CenterFlex, FlatBtn } from "../styles/global";
 import { throttle } from "lodash";
 import Head from "next/head";
-import { ethers } from "ethers";
-import ABI from "../abi/claimABI.json";
+import FaucetList from "../components/faucet-list";
 
 const Faucet = () => {
   return (
@@ -24,6 +16,7 @@ const Faucet = () => {
       </Head>
       <Layout>
         <FormCard />
+        <div id="modal-container"></div>
       </Layout>
     </>
   );
@@ -168,7 +161,7 @@ const Warning = styled(CenterFlex)`
   }
   span {
     font-family: IBM Plex Sans;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     line-height: 2.2rem;
     color: #ffffff;
   }
@@ -316,7 +309,6 @@ const FormCard = () => {
         "https://chrome.google.com/webstore/detail/zecrey/ojbpcbinjmochkhelkflddfnmcceomdi"
       );
     }
-
   };
   const onClaim = useRef(
     throttle(
@@ -363,10 +355,7 @@ const FormCard = () => {
             <span className="text">Select a chain to claim test tokens.</span>
             <CenterFlex>
               <Selector selected={selected} setSelected={setSelected} />
-              <button
-                className="claim"
-                onClick={() => onClaim(selected.id)}
-              >
+              <button className="claim" onClick={() => onClaim(selected.id)}>
                 Claim
               </button>
             </CenterFlex>
@@ -387,6 +376,7 @@ const FormCard = () => {
               {errMessage ||
                 `If you have already received the test tokens, it will fail when
                 your claim it again.`}
+              {!errMessage ? <FaucetList /> : null}
             </span>
           </Warning>
         ) : null}
