@@ -345,11 +345,14 @@ const FormCard = () => {
         setClaimed(1);
         claim(chainId)
           .then(() => {
+            debugger
             if (dom.current) {
               setClaimed(2);
             }
           })
           .catch((err) => {
+            debugger
+
             setErrMessage(err.reason  ?? "");
             setTimeout(() => {
               dom.current && setErrMessage("");
@@ -359,6 +362,8 @@ const FormCard = () => {
             }
           })
           .finally(() => {
+            debugger
+
             setTimeout(() => {
               if (dom.current) {
                 setClaimed(0);
@@ -384,7 +389,7 @@ const FormCard = () => {
             <span className="text">Select a chain to claim test tokens.</span>
             <CenterFlex>
               <Selector selected={selected} setSelected={setSelected} />
-              <button className="claim" onClick={() => onClaim(selected.id)}>
+              <button className="claim" onClick={() => onClaim(selected.id)} disabled={claimed===1}>
                 Claim
               </button>
             </CenterFlex>
