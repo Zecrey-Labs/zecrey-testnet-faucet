@@ -1,4 +1,5 @@
 import classNames from "classnames";
+import { ContractInterface, ethers, Signer } from "ethers";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Icon from "../components/Icon";
@@ -7,6 +8,49 @@ import { CenterFlex, FlatBtn } from "../styles/global";
 import { throttle } from "lodash";
 import Head from "next/head";
 import FaucetList from "../components/faucet-list";
+import CLAIM_CONTRACT_ABI from "./claimABI.json";
+const RINKEBY_CHAIN_ID = "0x4";
+const POLYGON_TESTNET_CHAIN_ID = "0x13881";
+const NEAR_AURORA_TESTNET_CHAIN_ID = "0x4e454153";
+const AVALANCHE_TESTNET_CHAIN_ID = "0xa869";
+const BSC_TESTNET_CHAIN_ID = "0x61";
+
+const CHAIN_ID = [
+  RINKEBY_CHAIN_ID,
+  POLYGON_TESTNET_CHAIN_ID,
+  NEAR_AURORA_TESTNET_CHAIN_ID,
+  AVALANCHE_TESTNET_CHAIN_ID,
+  BSC_TESTNET_CHAIN_ID,
+];
+
+ const CLAIM_CONTRACT_ADDRESS_MAP: Record<string, string> = {
+  [RINKEBY_CHAIN_ID]: "0xf5Fe43147a969180841c0E4BB766eD67938fFd2a",
+  [POLYGON_TESTNET_CHAIN_ID]: "0xbA0F5553cC7996a59F860F5a347976684e9Ae680",
+  [NEAR_AURORA_TESTNET_CHAIN_ID]: "0x0daB3AD6eE0Ca0AE3a5C0628cE54286589525ce1",
+  [AVALANCHE_TESTNET_CHAIN_ID]: "0x19c9e0490BeE1781a3C80648Cc2a061bcBc106e0",
+  [BSC_TESTNET_CHAIN_ID]: "0xA0C6126A241eeFD3D783667a19fb944500d88573",
+};
+
+const getSigner = () => {
+  const injectedWeb3Object = (window as any)?.zecrey
+  return new ethers.providers.Web3Provider(
+      injectedWeb3Object
+  ).getSigner();
+};
+
+const getClaimContractOfEthereumLike = (
+    chainId: string
+) => {
+   const signer = getSigner();
+  const claimContractAddress = CLAIM_CONTRACT_ADDRESS_MAP[chainId];
+  return new ethers.Contract(
+      claimContractAddress,
+      CLAIM_CONTRACT_ABI as ContractInterface,
+      signer
+  );
+};
+
+
 
 const Faucet = () => {
   return (
@@ -175,35 +219,21 @@ const options = [
   { name: "Binance Smart Chain - Testnet", id: 4 },
 ];
 
-// const MockClaim = () => {
-//   return new Promise<void>((resolve, reject) => {
-//     setTimeout(() => {
-//       let val = Date.now() % 2 === 0;
-//       if (val) {
-//         resolve();
-//       } else {
-//         reject({ message: "fail" });
-//       }
-//     }, 1 * 1000);
-//   });
-// };
 
-const claim = (chain_id: number) => {
-  return new Promise<void>(async (resolve, reject) => {
-    let zecrey = (window as any).zecrey;
-    if (!zecrey) return;
-    zecrey
+const switchBlockchain = async (chainId:string) => {
+  const injectedWeb3Object = (window as any)?.zecrey
+  await (injectedWeb3Object)
       .request({
-        method: "zecrey_claim",
-        params: [chain_id],
+        method: "wallet_switchEthereumChain",
+        params: [{chainId}],
       })
-      .then((result) => {
-        console.log(result);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  });
+}
+
+const claim = async (chain_id: number) => {
+  const chainId:string = CHAIN_ID[chain_id]
+  await switchBlockchain(chainId)
+  const contract = getClaimContractOfEthereumLike(chainId)
+  await contract.claimBatch()
 };
 
 const rinkeby_config = {
@@ -290,7 +320,6 @@ const FormCard = () => {
 
   const onConnect = () => {
     let zecrey = (window as any).zecrey;
-    console.log(zecrey);
     if (zecrey) {
       zecrey
         .request({
@@ -321,7 +350,7 @@ const FormCard = () => {
             }
           })
           .catch((err) => {
-            setErrMessage(err?.error?.message ?? "");
+            setErrMessage(err.reason  ?? "");
             setTimeout(() => {
               dom.current && setErrMessage("");
             }, 5000);
