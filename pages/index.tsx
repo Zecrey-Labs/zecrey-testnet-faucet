@@ -220,8 +220,18 @@ const options = [
 ];
 
 
+const switchBlockchain = async (chainId:string) => {
+  const injectedWeb3Object = (window as any)?.zecrey
+  await (injectedWeb3Object)
+      .request({
+        method: "wallet_switchEthereumChain",
+        params: [{chainId}],
+      })
+}
+
 const claim = async (chain_id: number) => {
   const chainId:string = CHAIN_ID[chain_id]
+  await switchBlockchain(chainId)
   const contract = getClaimContractOfEthereumLike(chainId)
   await contract.claimBatch()
 };
