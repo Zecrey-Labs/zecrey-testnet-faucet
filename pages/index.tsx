@@ -350,7 +350,7 @@ const FormCard = () => {
             }
           })
           .catch((err) => {
-            setErrMessage(err?.error?.message ?? "");
+            setErrMessage(err.reason  ?? "");
             setTimeout(() => {
               dom.current && setErrMessage("");
             }, 5000);
